@@ -22,7 +22,3 @@ get-NonBootDevices() {
     # Return the filtered devices
     echo "${filtered_devices[@]}"
 }
-
-# Example usage
-non_boot_devices=$(get-NonBootDevices)
-echo "Non-boot devices: $non_boot_devices"
