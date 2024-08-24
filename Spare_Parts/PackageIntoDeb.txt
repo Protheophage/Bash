@@ -1,0 +1,41 @@
+Step 1: Prepare the Directory Structure
+Ensure you have the necessary directory structure for the Debian package, including the directory for the man page:
+
+    mkdir -p theblackscorme-1.0/usr/local/bin
+    mkdir -p theblackscorme-1.0/usr/share/man/man1
+    mkdir -p theblackscorme-1.0/DEBIAN
+
+Step 2: 
+Create the Script File
+Place your TheBlackScorme script in the usr/local/bin directory and make it executable:
+    chmod +x theblackscorme-1.0/usr/local/bin/theblackscorme
+
+Step 3: Create Symlink for TBS
+Create a symbolic link for TBS:
+    ln -s /usr/local/bin/theblackscorme theblackscorme-1.0/usr/local/bin/TBS
+
+Step 4: Create the Man Page
+Save the man page content to a file named TheBlackScorme.1:
+
+Step 5: Create the Control File
+Create a control file in the DEBIAN directory with the package metadata:
+    cat << 'EOF' > theblackscorme-1.0/DEBIAN/control
+    Package: theblackscorme
+    Version: 1.0
+    Section: base
+    Priority: optional
+    Architecture: all
+    Depends: coreutils, dc3dd
+    Maintainer: Your Name <your.email@example.com>
+    Description: A script to wipe all attached storage devices except the boot drive.
+    EOF
+
+Step 6: Build the Package
+Build the .deb package using dpkg-deb:
+    dpkg-deb --build theblackscorme-1.0
+This will create a file named theblackscorme-1.0.deb.
+
+Step 7: Install the Package
+Install the package using dpkg:
+    sudo dpkg -i theblackscorme-1.0.deb
+
