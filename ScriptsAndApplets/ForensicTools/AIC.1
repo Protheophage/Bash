@@ -1,0 +1,68 @@
+.TH AIC 1 "August 2024" "2.0" "Automated Image Collector"
+.SH NAME
+AIC \- Automated Imaging and Cloning
+.SH SYNOPSIS
+.B AIC
+[\-\-dc3dd | \-3] [\-\-hash | \-h]
+.SH DESCRIPTION
+The
+.B AIC
+Automates the process of imaging and cloning all drives attached to your computer, excluding the boot drive and the destination drive. For forensic image collections it supports optional hashing and the use of
+.B dc3dd.
+.SH OPTIONS
+.TP
+.B \-\-dc3dd, \-3
+Use
+.B dc3dd
+instead of
+.B dd
+for imaging.
+.TP
+.B \-\-hash, \-h
+Generate SHA-256 hashes for the source and destination images.
+.SH USAGE
+.IP "1."
+Find the destination drive by label:
+The script looks for a drive labeled "DestDir". If not found, it prompts the user to enter the destination device path.
+.IP "2."
+Mount the destination drive:
+The destination drive is mounted at
+.B /mnt/destDrive.
+.IP "3."
+Create the images directory:
+Ensures the directory
+.B /mnt/destDrive/images
+exists.
+.IP "4."
+Identify the boot drive:
+The boot drive is identified and excluded from the imaging process.
+.IP "5."
+Find all other drives:
+All drives except the boot drive and the destination drive are identified for imaging.
+.IP "6."
+Image the drives:
+Each identified drive is imaged to the destination directory. If
+.B \-\-dc3dd
+is specified,
+.B dc3dd
+is used; otherwise,
+.B dd
+is used. If
+.B \-\-hash
+is specified, SHA-256 hashes are generated and logged.
+.IP "7."
+.SH EXAMPLES
+.IP "Basic usage:"
+.B AIC
+.IP "Using dc3dd:"
+.B AIC \-\-dc3dd
+.IP "Using dd with hashing:"
+.B AIC \-\-hash
+.IP "Using dc3dd with hashing:"
+.B AIC \-\-dc3dd \-\-hash
+.SH AUTHOR
+Written by Colby C.
+.SH REPORTING BUGS
+Report bugs to protheophage@gmail.com.
+.SH COPYRIGHT
+This is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.

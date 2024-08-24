@@ -1,136 +1,62 @@
-#! /bin/bash
+#!/bin/bash
 
-#AIC - Automated Image Collector (1) -MOUNTER (1) -FLAGGER (1) -COLLECTOR (1)
+AIC() {
+    local DEST_LABEL="DestDir"
+    local DEST_MOUNT="/mnt/destDrive"
+    local IMAGE_DIR="$DEST_MOUNT/images"
+    local USE_DC3DD=false
+    local HASH=false
 
-#Determine Project Title
-echo -n "What is the title for this project?"
-read userSetTitle
+    # Parse arguments
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            --dc3dd|-3) USE_DC3DD=true ;;
+            --hash|-h) HASH=true ;;
+            *) echo "Unknown parameter passed: $1"; return 1 ;;
+        esac
+        shift
+    done
 
-echo " "
-echo -n "the title is set to " $userSetTitle
+    # Find the destination drive by label
+    DEST_DEVICE=$(blkid -L "$DEST_LABEL")
 
-echo " "
-echo " "
+    # If the destination drive is not found, prompt the user for the destination path
+    if [ -z "$DEST_DEVICE" ]; then
+        read -p "Destination drive not found. Please enter the destination device (e.g., /dev/sdX1): " DEST_DEVICE
+    fi
 
-#MOUNTER (1)
+    # Mount the destination drive
+    mkdir -p $DEST_MOUNT
+    mount $DEST_DEVICE $DEST_MOUNT
 
-#Unmount everything
-umount -a
+    # Ensure the images directory exists
+    mkdir -p $IMAGE_DIR
 
-#Find all devices
-fdisk -l | grep -o '/dev/sd..' > /root/Documents/mnt.txt
-fdisk -l | grep -o '/dev/sd.:' > /root/Documents/devs.txt
+    # Get the boot drive
+    BOOT_DRIVE=$(df / | tail -1 | awk '{print $1}' | sed 's/[0-9]*$//')
 
-#Create Counters
-x=$(grep -c '/dev/sd' /root/Documents/mnt.txt)
-y=1
-z=1
-d=1
+    # Find all drives except the boot drive and the destination drive
+    DRIVES=$(lsblk -nd -o NAME | grep -v "$(basename $BOOT_DRIVE)" | grep -v "$(basename $DEST_DEVICE)")
 
-#Create mount points
-while [ $d -le $x ]
-do
-mkdir /media/root/device$d
-d=`expr $d + 1`
-done
+    for DRIVE in $DRIVES; do
+        SRC_DRIVE="/dev/$DRIVE"
+        DEST_IMAGE="$IMAGE_DIR/$DRIVE.dd"
+        LOG_FILE="$IMAGE_DIR/$DRIVE.log"
 
-echo " "
-echo " "
-
-#Mount devices
-while [ $y -le $x ]
-do
-mount -r --source $(head -$y /root/Documents/mnt.txt | tail -1) --target /media/root/device$z 
-y=`expr $y + 1`
-z=`expr $z + 1`
-done
-
-echo " "
-echo " "
-
-
-#FLAGGER (1)
-
-#Find the destination flag directory
-find /media/root -maxdepth 2 -iname 'uunique_dirrr_nammme' > /root/Documents/flagname.txt
-cat /root/Documents/flagname.txt
-
-echo " "
-
-echo -n "Is this the correct destination? y/n [Enter]: "
-
-read userAnswer
-
-echo " "
-
-if echo $userAnswer | grep -iq "y"
-then
-echo "Continuing"
-else
-echo "Find the flag directory, and change the permissions manually. Then run collector.sh"
-exit 1
-fi
-
-#Identify destination device
-findmnt -M $(grep -o '/media/root/device..' /root/Documents/flagname.txt) -o source > /root/Documents/flagd.txt
-
-#Remove the destination device from the imaging list
-grep -vwE "$(grep -o "/dev/sd." /root/Documents/flagd.txt)" /root/Documents/devs.txt > /root/Documents/fdevs.txt
-
-#Find device(s) to be ignored
-find /media/root -maxdepth 2 -iname 'iignoree_meee' > /root/Documents/live.txt
-
-#Create Counters
-l=$(grep -c '.' /root/Documents/live.txt
-m=1
-
-#Identify device(s) to be ignored
-touch /root/Documents/flagd.txt
-while [ $m -le $l ]
-do
-findmnt -M $(head -$m /root/Documents/live.txt | tail -1 | grep -o '/media/root/device..') -o source >> /root/Documents/flagd.txt
-m=`expr $m + 1`
-done
-
-#Remove ignored device(s) from imaging list
-grep -vwE "$(grep -o "/dev/sd." /root/Documents/flagd.txt)" /root/Documents/fdevs.txt > /root/Documents/devs.txt
-
-#Clean up imaging list
-sed 's/://g' /root/Documents/devs.txt > /root/Documents/ilist.txt
-
-#Change flag directory to full permissions
-l=`grep -o '[0-9]*' /root/Documents/flagname.txt`
-umount `grep -o '/media/root/device[0-9]*' /root/Documents/flagname.txt`
-mount `head -$l /root/Documents/mnt.txt | tail -1` `grep -o '/media/root/device[0-9]*' /root/Documents/flagname.txt`
-
-echo " "
-echo " "
-
-#COLLECTOR (1)
-
-#Create counters
-e=$(grep -c '/dev/sd.' /root/Documents/ilist.txt)
-f=1
-g=`cat /root/Documents/flagname.txt`
-
-#Image devices with dc3dd
-while [ $f -le $e ]
-do
-dc3dd if="$(head -$f /root/Documents/ilist.txt | tail -1)" hof=$g/$userSetTitle$f.dd hash=md5 log=$g/$userSetTitle$f.txt
-f=`expr $f + 1`
-done
-
-#HOUSE CLEANING (1)
-
-#Remove all text files created by aic
-rm -f /root/Documents/mnt.txt
-rm -f /root/Documents/devs.txt
-rm -f /root/Documents/flagname.txt
-rm -f /root/Documents/flagd.txt
-rm -f /root/Documents/fdevs.txt
-rm -f /root/Documents/live.txt
-rm -f /root/Documents/ilist.txt
-umount -a
-rmdir /media/root/dev*
-
-#Written by Colby Connolly 2016
+        if $USE_DC3DD; then
+            if $HASH; then
+                dc3dd if=$SRC_DRIVE hof=$DEST_IMAGE hash=sha256 log=$LOG_FILE hlog=$LOG_FILE
+            else
+                dc3dd if=$SRC_DRIVE of=$DEST_IMAGE
+            fi
+        else
+            if $HASH; then
+                dd if=$SRC_DRIVE of=$DEST_IMAGE bs=4M status=progress
+                sha256sum $SRC_DRIVE > "$LOG_FILE"
+                sha256sum $DEST_IMAGE >> "$LOG_FILE"
+            else
+                dd if=$SRC_DRIVE of=$DEST_IMAGE bs=4M status=progress
+            fi
+        fi
+    done
+}
