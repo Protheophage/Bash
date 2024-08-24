@@ -1,0 +1,41 @@
+.TH TheBlackScorme 1 "August 2024" "2.0" "TheBlackScorme Manual"
+.SH NAME
+TheBlackScorme \- Wipe all attached storage devices except the boot drive
+.SH SYNOPSIS
+.B TheBlackScorme
+[\fB--dc3dd\fR | \fB-3\fR] [\fB--log\fR | \fB-l\fR \fIlog_directory\fR] [\fB--whatif\fR | \fB-l\fR]
+.SH DESCRIPTION
+TheBlackScorme is a Bash function that wipes all attached storage devices except the boot drive. It supports two options:
+.TP
+\fB--dc3dd\fR, \fB-3\fR
+Use dc3dd for wiping.
+.TP
+\fB--log\fR, \fB-l\fR \fIlog_directory\fR
+Specify a directory for logging. Each log file will be named after the device being wiped (e.g., sda.log, sdb.log).
+.TP
+\fB--whatif\fR, \fB-w\fR
+Enables WhatIf mode. Non-destructive. Tells you what would happen if you ran the command with your selected flags.
+.SH EXAMPLES
+.B TheBlackScorme
+Wipe all drives with dd and don't log.
+.br
+.B TheBlackScorme -l
+Wipe all drives with dd. Then hash them and log the hash results
+.br
+.B TheBlackScorme --dc3dd --log /path/to/logdir
+Wipe all drives with dc3dd. Then hash them and log the hash results
+.br
+.B TheBlackScorme -3
+Wipe all drives with dc3dd and don't log
+.br
+.B TheBlackScorme -3 -l /path/to/logdir -w
+Runs the command in WhatIf mode. Lists each drive that will be wiped, what tool will be used, and where it will be logged.
+.br
+.B TBS
+.B TBS -3 -l /path/to/logdir
+TBS can be used as shorthand to call TheBlackScorme
+.br
+.SH AUTHOR
+Colby C Protheophage@gmail.com
+.SH COPYRIGHT
+Copyright (C) 2024 Colby C
