@@ -1,51 +1,62 @@
 #!/bin/bash
 
-TheBlackScorme() {
+theblackscorme() {
     local use_dc3dd=false
     local log_dir=""
-    local boot_drive=$(lsblk -o NAME,MOUNTPOINT | grep -w '/' | awk '{print $1}')
     local WhatIf=false
+    local boot_drive=$(df / | tail -1 | awk '{print $1}')
+    local base_boot_device=$(echo $boot_drive | sed 's/[0-9]*$//')
+    local all_devices=($(lsblk -nd -o NAME))
+    # Create an array excluding the boot device and its partitions
+    local filtered_devices=()
+    for device in "${all_devices[@]}"; do
+        if [[ "/dev/$device" != "$boot_device" && "/dev/$device" != "$base_boot_device"* ]]; then
+            filtered_devices+=("/dev/$device")
+        fi
+    done
+
+    printf "Boot drive: %s\n" "$boot_drive"  # Debug statement
 
     while [[ "$1" != "" ]]; do
         case $1 in
             --dc3dd | -3 ) use_dc3dd=true ;;
             --log | -l ) shift; log_dir=$1 ;;
             --whatif | -w ) WhatIf=true ;;
-            * ) echo "Invalid option: $1"; return 1 ;;
+            * ) printf "Invalid option: %s\n" "$1"; return 1 ;;
         esac
         shift
     done
 
     if $WhatIf; then
-        for device in $(lsblk -dno NAME | grep -v $boot_drive); do
+        printf "WhatIf mode enabled\n"  # Debug statement
+        for device in $filtered_devices; do
+            printf "Processing device: %s\n" "$device"  # Debug statement
             if $use_dc3dd; then
                 if [[ -n $log_dir ]]; then
-                    echo "Device $device will be wiped with dc3dd, and logged to $log_dir."
-                    return 0
+                    printf "Device %s will be wiped with dc3dd, and logged to %s.\n" "$device" "$log_dir"
                 else
-                    echo "Device $device will be wiped with dc3dd, and no logs will be created."
-                    return 0
+                    printf "Device %s will be wiped with dc3dd, and no logs will be created.\n" "$device"
                 fi
             else
                 if [[ -n $log_dir ]]; then
-                    echo "Device $device will be wiped with dd, and logged to $log_dir."
-                    return 0
+                    printf "Device %s will be wiped with dd, and logged to %s.\n" "$device" "$log_dir"
                 else
-                    echo "Device $device will be wiped with dd, and no logs will be created."
-                    return 0
+                    printf "Device %s will be wiped with dd, and no logs will be created.\n" "$device"
                 fi
             fi
-        done    
+        done
+        return 0
+    fi
 
     if [[ -n $log_dir ]]; then
         mkdir -p $log_dir
         if [[ $? -ne 0 ]]; then
-            echo "Failed to create log directory $log_dir"
+            printf "Failed to create log directory %s\n" "$log_dir"
             return 1
         fi
     fi
 
-    for device in $(lsblk -dno NAME | grep -v $boot_drive); do
+    for device in $filtered_devices; do
         if $use_dc3dd; then
             if [[ -n $log_dir ]]; then
                 dc3dd hwipe=/dev/$device hash=sha256 log=${log_dir}/dc3dd${device}.log hashlog=${log_dir}/hash${device}.log

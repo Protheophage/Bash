@@ -1,0 +1,46 @@
+.TH MAKE-DEBPACKAGEDIRS 1 "August 2024" "1.0" "User Commands"
+.SH NAME
+make-DebPackageDirs \- Create directory structure for Debian packages
+
+.SH SYNOPSIS
+.B make-DebPackageDirs
+[\fB--packname\fP | \fB-p\fP] \fIPackageName\fP
+[\fB--vers\fP | \fB-v\fP] \fIVersion\fP
+[\fB--alias\fP | \fB-a\fP] \fIAliasValue\fP
+[\fB--depends\fP | \fB-d\fP] \fIDependsValue\fP
+[\fB--maintainer\fP | \fB-m\fP] \fIMaintainer\fP
+[\fB--description\fP | \fB-D\fP] \fIDescription\fP
+
+.SH DESCRIPTION
+.B make-DebPackageDirs
+is a script to create the necessary directory structure for Debian packages. It also creates a control file and optionally sets up an alias for the package.
+
+.SH OPTIONS
+.TP
+\fB--packname\fP, \fB-p\fP
+The name of the package.
+.TP
+\fB--vers\fP, \fB-v\fP
+The version of the package. Default is "1.0".
+.TP
+\fB--alias\fP, \fB-a\fP
+Create a symbolic link for the package with the given alias.
+.TP
+\fB--depends\fP, \fB-d\fP
+Dependencies for the package.
+.TP
+\fB--maintainer\fP, \fB-m\fP
+The maintainer of the package.
+.TP
+\fB--description\fP, \fB-D\fP
+A description of the package.
+
+.SH EXAMPLES
+.B make-DebPackageDirs
+\fB--packname\fP mypackage \fB--vers\fP 1.0 \fB--alias\fP myalias \fB--depends\fP "libc6, libssl1.1" \fB--maintainer\fP "John Doe <john.doe@example.com>" \fB--description\fP "My sample package"
+
+.SH AUTHOR
+Written by [Your Name].
+
+.SH COPYRIGHT
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

@@ -16,19 +16,19 @@ Specify a directory for logging. Each log file will be named after the device be
 \fB--whatif\fR, \fB-w\fR
 Enables WhatIf mode. Non-destructive. Tells you what would happen if you ran the command with your selected flags.
 .SH EXAMPLES
-.B TheBlackScorme
+.B theblackscorme
 Wipe all drives with dd and don't log.
 .br
-.B TheBlackScorme -l
+.B theblackscorme -l
 Wipe all drives with dd. Then hash them and log the hash results
 .br
-.B TheBlackScorme --dc3dd --log /path/to/logdir
+.B theblackscorme --dc3dd --log /path/to/logdir
 Wipe all drives with dc3dd. Then hash them and log the hash results
 .br
-.B TheBlackScorme -3
+.B theblackscorme -3
 Wipe all drives with dc3dd and don't log
 .br
-.B TheBlackScorme -3 -l /path/to/logdir -w
+.B theblackscorme -3 -l /path/to/logdir -w
 Runs the command in WhatIf mode. Lists each drive that will be wiped, what tool will be used, and where it will be logged.
 .br
 .B TBS
