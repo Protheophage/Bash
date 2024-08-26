@@ -1,7 +1,5 @@
 #!/bin/bash
-#ToDo Works great when declared and called as a function.  Fails to find most of the devices when called as a script.
 
-#Main function
 TheBlackScorme() {
     local use_dc3dd=false
     local log_dir=""
@@ -20,7 +18,7 @@ TheBlackScorme() {
         fi
     done
     echo "The boot device is $boot"
-    echo "The non-boot devices are $filtered_devices"
+    echo "The non-boot devices are ${filtered_devices[@]}"
 
     while [[ "$1" != "" ]]; do
         case $1 in
@@ -33,18 +31,19 @@ TheBlackScorme() {
     done
 
     if $WhatIf; then
-        echo "WhatIf mode enabled"  # Debug statement
-        for device in $filtered_devices; do
-            echo "Processing device: $device"  # Debug statement
+        echo "WhatIf mode enabled"
+        for device in "${filtered_devices[@]}"; do
+            echo "Processing device: $device"
+            dev=${device: -3}
             if $use_dc3dd; then
                 if [[ -n $log_dir ]]; then
-                    echo "Device $device will be wiped with dc3dd, and logged to $log_dir"
+                    echo "Device $device will be wiped with dc3dd, and logged to $log_dir/$dev"
                 else
                     echo "Device $device will be wiped with dc3dd, and no logs will be created."
                 fi
             else
                 if [[ -n $log_dir ]]; then
-                    echo "Device $device will be wiped with dd, and logged to $log_dir"
+                    echo "Device $device will be wiped with dd, and logged to $log_dir/$dev"
                 else
                     echo "Device $device will be wiped with dd, and no logs will be created."
                 fi
@@ -61,18 +60,19 @@ TheBlackScorme() {
         fi
     fi
 
-    for device in $filtered_devices; do
-        echo "Processing device: $device" 
+    for device in "${filtered_devices[@]}"; do
+        echo "Processing device: $device"
+        dev=${device: -3}
         if $use_dc3dd; then
             if [[ -n $log_dir ]]; then
-                dc3dd hwipe=$device hash=sha256 log=${log_dir}/dc3dd${device}.log hashlog=${log_dir}/hash${device}.log
+                dc3dd hwipe=$device hash=sha256 log=${log_dir}/dc3dd${dev}.log hlog=${log_dir}/hash${dev}.log
             else
                 dc3dd hwipe=$device hash=sha256
             fi
         else
             if [[ -n $log_dir ]]; then
-                dd if=/dev/zero of=$device bs=1M status=progress 2>&1 | tee -a ${log_dir}/dd${device}.log
-                sha256sum $device | tee -a ${log_dir}/hash${device}.log
+                dd if=/dev/zero of=$device bs=1M status=progress 2>&1 | tee -a ${log_dir}/dd${dev}.log
+                sha256sum $device | tee -a ${log_dir}/hash${dev}.log
             else
                 dd if=/dev/zero of=$device bs=1M status=progress
                 sha256sum $device
