@@ -22,3 +22,6 @@ get-NonBootDevices() {
     # Return the filtered devices
     echo "${filtered_devices[@]}"
 }
+
+#Leave next line commented to make script just declare the function. Uncomment to make script execute the function
+#get-NonBootDevices "$@"

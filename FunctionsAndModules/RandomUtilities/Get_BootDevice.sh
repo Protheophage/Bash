@@ -11,3 +11,6 @@ get-BootDevice() {
     # Return the filtered devices
     echo $base_boot_device
 }
+
+#Leave next line commented to make script just declare the function. Uncomment to make script execute the function
+#get-BootDevice "$@"

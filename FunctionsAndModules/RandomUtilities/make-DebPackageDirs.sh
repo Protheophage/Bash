@@ -66,3 +66,6 @@ Description: $Description
 EOF
     fi
 }
+
+#Leave next line commented to make script just declare the function. Uncomment to make script execute the function
+#make-DebPackageDirs "$@"

@@ -1,6 +1,6 @@
 #!/bin/bash
-
-AIC() {
+#WIP Still need to test and verify full function
+AutomatedImageCollector() {
     local DEST_LABEL="DestDir"
     local DEST_MOUNT="/mnt/destDrive"
     local IMAGE_DIR="$DEST_MOUNT/images"
@@ -60,3 +60,6 @@ AIC() {
         fi
     done
 }
+
+#Leave next line commented to make script just declare the function. Uncomment to make script execute the function
+#AutomatedImageCollector "$@"
