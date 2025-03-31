@@ -1,0 +1,143 @@
+======================Linux Stuff======================
+	#SSH enable
+		systemctl enable ssh
+		vim /etc/ssh/sshd_config
+		#Add line at bottom to allow user
+		AllowUsers kali root
+
+	#Network Troubleshooting
+		#Show all interfaces
+			ip link show
+		#Show details of specific interface
+			ip addr show <interface-name>
+		#Locations of network config files
+			/etc/network/interfaces
+			/etc/sysconfig/network-scripts
+			/etc/netplan
+			#DNS
+			/etc/resolv.conf
+		#Apply network config if using netplan
+			netplan apply
+		#Set interface to up
+			ifconfig <interface-name> up
+		#Set IP and Gateway
+			ip addr add 10.75.1.71/24 dev eth0
+			ip route del default
+			ip route add default via 10.75.1.1 dev eth0
+		#Check Routing Table
+			route -n
+	
+	#Working with Services
+		#List all services
+			systemctl show services
+		#List services containing string
+			systemctl list-units --type=service *<string>*
+		#Get status of specific service
+			service-control --status <serviceName>
+		#Start a service
+			service-control --start <serviceName>
+		#Start all services
+			service-control --start --all
+	
+	#Crack root pw
+		#Reboot your Linux system and wait for the GRUB menu to appear during the boot process.
+		#Press ‘e’ to edit the boot parameters.
+		#Find the line starting with ‘linux’ and change ‘ro’ (read-only) to ‘rw’ (read-write). Add ‘init=/bin/bash’ at the end of this line.
+		#Press F10 to boot with these parameters.
+		#Once the system boots, you’ll be at the bash prompt. Remount the root filesystem with write permissions using: mount -o remount,rw /
+		#Reset the root password by typing: passwd root and then enter the new password twice when prompted.
+		#Reboot the system by typing: exec /sbin/init
+
+		##Process specific to RHEL
+			#Interrupt the Boot Process:
+			#Reboot your system.
+			#When the GRUB menu appears, press any key to interrupt the boot process.
+			#Edit Boot Parameters:
+			#Use the arrow keys to highlight the kernel you want to boot.
+			#Press e to edit the selected boot entry.
+			#Find the line that starts with linux and append rd.break at the end of this line.
+			#Press Ctrl + X to boot with these parameters.
+			#Remount the File System:
+			#Once the system boots into the emergency mode, remount the root file system with read and write permissions:
+			mount -o remount,rw /sysroot
+
+			#Change the root directory:
+			chroot /sysroot
+
+			#Reset the Root Password:
+			#Use the passwd command to reset the root password:
+			passwd
+
+			#Enter and confirm the new password.
+			#Relabel SELinux:
+			#Create a file to ensure SELinux relabels the file system on reboot:
+			touch /.autorelabel
+
+			#Exit the chroot environment:
+			exit
+
+			#Reboot the system:
+			reboot
+
+	#Cron Jobs
+		#List all for current user
+			crontab -l
+
+		#Script to get jobs for all users
+			#!/bin/bash
+			for user in $(cut -f1 -d: /etc/passwd); do
+				echo "Crontab for $user:"
+				sudo crontab -u $user -l
+				echo ""
+			done
+
+		#Paths to system cron jobs
+			/etc/cron.hourly
+			/etc/cron.daily
+			/etc/cron.weekly
+			/etc/cron.monthly
+
+		# Script to get system wide cron jobs
+			#!/bin/bash
+
+			# Define the system-wide cron directories
+			cron_dirs=(/etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly)
+
+			# Loop through each directory and list the cron jobs
+			for dir in "${cron_dirs[@]}"; do
+				echo "Checking $dir for cron jobs:"
+				if [[ -d "$dir" ]]; then
+					ls -la "$dir"
+				else
+					echo "Directory $dir does not exist."
+				fi
+				echo ""
+			done
+
+	#Startup Scripts
+		/etc/rc.local
+		/etc/init.d/ 
+		/etc/systemd/system/
+
+	#Logon banner
+		/etc/motd
+			#All linux
+		/etc/vmware/welcome
+			#ESXi ui specific
+		/etc/issue
+			#ESXi host specific
+
+	#Shells
+		shell.set --enabled true
+			#Enable the shell from the console in ESXi
+		
+		chsh -l
+			List available shells
+
+		chsh -s /bin/bash root
+			#Change the default shell to bash for root
+			#Alternatively the /etc/passwd file can be modified by changing the part after the username to the desired shell. i.e. username:x:1000:1000:User Name,,,:/home/username:/bin/bash
+	
+	#Repos
+		echo "deb http://http.kali.org/kali kali-rolling main contrib non-free" >> /etc/apt/sources.list
+			#Adds the deb kali repo to sources so you can download packages with apt
