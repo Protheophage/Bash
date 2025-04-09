@@ -14,19 +14,19 @@
 # 8. Cron Jobs
 # 9. PostgreSQL
 # 10. Apache
-# 11. Scripting Essentials
-#    11.1 Parameter Definitions and Attributes
-#    11.2 Shell Variables and I/O
-#    11.3 Control Structures and Functions
-#    11.4 Error Handling and Best Practices
-# 12. Regular Expressions
-# 13. Useful Paths
-# 14. Miscellaneous
-#    14.1 Miscellaneous Commands
-#    14.2 Crack Root Password
-# 15. Securing, Monitoring, and Logging
-#    15.1 Securing the System
-#    15.2 Monitoring and Logging
+# 11. Securing, Monitoring, and Logging
+#    11.1 Securing the System
+#    11.2 Monitoring and Logging
+# 12. Scripting Essentials
+#    12.1 Parameter Definitions and Attributes
+#    12.2 Shell Variables and I/O
+#    12.3 Control Structures and Functions
+#    12.4 Error Handling and Best Practices
+# 13. Regular Expressions
+# 14. Useful File Paths
+# 15. Miscellaneous
+#    15.1 Miscellaneous Commands
+#    15.2 Crack Root Password
 ###########################################################################
 #region Help and Discovery
 # Commands to explore and discover shell commands and their usage.
@@ -475,35 +475,55 @@ route
 #region Package Management
 # Commands to manage software packages.
 
-apt-get update
-    # Updates the package list (Debian-based systems).
+apt-get
+    # Package manager for Debian-based systems.
 
     # Update the package list
         apt-get update
 
-apt-get install
-    # Installs a package (Debian-based systems).
+    # Upgrade all installed packages
+        apt-get upgrade
 
-    # Install the `curl` package
-        apt-get install curl
+    # Install a package
+        apt-get install <package-name>
+
+    # Remove a package
+        apt-get remove <package-name>
 
 apt
-    # Installs a package (Debian-based systems).
+    # Advanced package tool for Debian-based systems.
+    #Has a similar syntax to apt-get.
 
-    # Install the `curl` package
-        apt install curl
+    # Install a package
+        apt install <package-name>
 
-    # Upgrades all installed packages
-        apt upgrade
+    # Remove a package
+        apt remove <package-name>
 
 dpkg
     # Package manager for Debian-based systems.
 
     # Install a package from a `.deb` file
-        dpkg -i package.deb
+        dpkg -i <package.deb>
 
     # Remove a package
-        dpkg -r package_name
+        dpkg -r <package_name>
+
+#Format of the Sources.list file
+    # The sources.list file contains a list of repositories (package sources) from which packages can be downloaded.
+
+    # The format of each line in sources.list is as follows:
+        deb [options] uri distribution [components]
+        deb-src [options] uri distribution [components]
+            # The `deb` line specifies a binary package repository.
+            # The `deb-src` line specifies a source package repository.
+            # `uri` is the URL of the repository. This portion can start with http://, ftp://, or file:// or cdrom:**.
+                # **cdrom: needs to be added using apt-cdrom command.
+            # `distribution` is the name of the distribution (e.g., stable, testing).
+            # `components` are the sections of the repository (e.g., main, contrib, non-free).
+
+    # Example entry in sources.list
+        deb http://deb.debian.org/debian/ stable main contrib non-free
 
 #Repos
 
@@ -549,7 +569,12 @@ dpkg
     	echo "deb http://ppa.launchpad.net/ubuntu/ppa-testing/ubuntu focal-proposed main restricted universe multiverse" >> /etc/apt/sources.list
     #Adds the ubuntu ppa unstable repo to sources so you can download packages with apt
     	echo "deb http://ppa.launchpad.net/ubuntu/ppa-unstable/ubuntu focal-unstable main restricted universe multiverse" >> /etc/apt/sources.list
-		
+
+# Package File Paths
+    /var/cache/apt/archives # Cached package files
+    /var/lib/dpkg/status # Package status file
+    /etc/apt/sources.list # Package sources list
+    /etc/apt/trusted.gpg # Trusted GPG keys for package verification		
 #endregion
 
 #region Remote Commands
@@ -669,9 +694,6 @@ postresql-common
     /var/lib/postgresql/12/main/pg_hba.conf  # PostgreSQL client authentication configuration file.
     /var/lib/postgresql/12/main/postgresql.conf  # PostgreSQL main configuration file.
     /var/lib/postgresql/12/main/pg_ident.conf  # PostgreSQL user name mapping file.
-    /var/lib/postgresql/12/main/pg_ctl  # PostgreSQL control program.
-    /var/lib/postgresql/12/main/pg_dump  # PostgreSQL backup program.
-    /var/lib/postgresql/12/main/pg_restore  # PostgreSQL restore program.
 #endregion
 
 #region Apache
@@ -766,6 +788,202 @@ htpasswd
     /etc/apache2/mods-enabled/  # Directory for enabled Apache modules.
     /etc/apache2/mods-available/  # Directory for available Apache modules.
     /etc/apache2/ports.conf  # Configuration file for Apache ports.
+
+#endregion
+
+#region Securing, Monitoring and Logging
+
+#region Securing the System
+#"Security is a process, not a product." - Bruce Schneier
+
+# General security practices.
+    # Keep the system updated with security patches.
+    # Use strong passwords and change them regularly.
+    # Limit user privileges and use the principle of least privilege.
+    # Regularly back up important data and configurations.
+    # Monitor system logs for unusual activity.
+    # Use firewalls to restrict access to services.
+    # Encrypt sensitive data and communications.
+    # Disable unused services and ports.
+    # set up a nuke feature to wipe the system.
+    # Specific tip for pentesting laptop: Forbid all outbound traffic except the traffic over the VPN tunnel so you know immediately if the VPN tunnel is down.
+
+# Securing Network Services
+    # Use SSH instead of Telnet for remote access.
+    # Use HTTPS instead of HTTP for web services.
+    # Use secure protocols (e.g., SFTP, FTPS) for file transfers.
+    # Disable root login over SSH and use key-based authentication.
+    # Use strong encryption algorithms for VPNs and secure communications.
+    # Reset any default passwords.
+    # Check kali.org/docs/ and tools.kali.org for services that need special care to secure.
+
+# Firewall and Packet Filtering
+    # netfilter (iptables) is the default firewall for Linux.
+    # Use iptables or fwbuilder to configure firewall rules.
+    # Allow only necessary ports and services.
+    # Block all incoming traffic by default and allow specific services.
+    # Use logging to monitor dropped packets and suspicious activity.
+    # Use fail2ban to protect against brute-force attacks on services.
+
+# Netfilter Behavior
+    # Netfilter is a framework provided by the Linux kernel for packet filtering and network address translation (NAT).
+    # It allows you to define rules for how packets should be handled based on various criteria, such as source/destination IP addresses, ports, and protocols.
+    # Netfilter operates at the kernel level, providing high performance and flexibility for network traffic management.
+    # Netfilter uses four tables:
+        # filter: Default table for packet filtering - Chains: INPUT, OUTPUT, FORWARD.
+        # nat: Used for network address translation - Chains: PREROUTING, POSTROUTING, OUTPUT.
+        # mangle: Used for specialized packet alteration - Chains: PREROUTING, POSTROUTING, INPUT, OUTPUT, FORWARD.
+        # raw: Used for configuring exemptions from connection tracking - Chains: PREROUTING, OUTPUT.
+    
+
+# Commands to manage netfilter
+
+iptables
+    # Linux firewall utility for configuring packet filtering rules.
+
+    # Syntax for iptables commands
+        iptables -L -n -v # List current iptables rules
+        iptables -N chain # Create a new chain
+        iptables -X chain # Delete a chain
+        iptables -A chain rule # Add a rule at the end of a chain        
+        iptables -I chain rule_num rule # Insert a rule at the beginning of a chain
+        iptables -D chain rule_num (OR -D chain rule) # Delete a specific rule from a chain
+        iptables -F chain # Flush all rules in a chain
+        iptables -P chain policy # Set the default policy for a chain
+        iptables -n -L INPUT --line-numbers # List all rules in the INPUT chain with line numbers
+
+    # Silently block incoming traffic from the IP address 10.0.1.5 and the 31.13.74.0/24 class C subnet
+        iptables -A INPUT -s 10.0.1.5 -j DROP # Block a specific IP address
+        iptables -A INPUT -s 31.13.74.0/24 -j DROP # Block a specific subnet
+        iptables -n -L INPUT # List all rules in the INPUT chain
+
+    # allow users to connect to SSH, HTTP, and IMAP services
+        iptables -A INPUT -p tcp --dport 22 -j ACCEPT # Allow SSH connections
+        iptables -A INPUT -p tcp --dport 80 -j ACCEPT # Allow HTTP connections
+        iptables -A INPUT -p tcp --dport 143 -j ACCEPT # Allow IMAP connections
+
+    # Block all incoming traffic by default
+        iptables -P INPUT DROP
+
+    # Allow outgoing traffic by default
+        iptables -P OUTPUT ACCEPT
+
+    # Save iptables rules to a file
+        iptables-save > /etc/iptables/rules.v4
+
+ip6tables
+    # IPv6 version of iptables for configuring packet filtering rules.
+    # Similar syntax to iptables.
+
+fwbuilder
+    # A graphical firewall configuration tool for Linux.
+
+    # Install fwbuilder
+        apt-get install fwbuilder
+
+# Implementing firewall rules each time the system boots
+    # Create firewall configuration script.
+        #This can be done using fwbuilder or manually writing a script.
+            # Example script to set up iptables rules:
+                #!/bin/bash
+                iptables -F  # Flush existing rules
+                iptables -P INPUT DROP  # Set default policy to DROP for INPUT chain
+                iptables -P OUTPUT ACCEPT  # Set default policy to ACCEPT for OUTPUT chain
+                iptables -A INPUT -p tcp --dport 22 -j ACCEPT  # Allow SSH connections
+                    # Documentation on building iptables rules can be found at https://www.netfilter.org/documentation/index.html.
+    # Point to the script in the /etc/network/interfaces file using the up directive.
+        # Example:
+            auto eth0
+            iface eth0 inet static
+                address 192.168.0.1
+                network 192.168.0.0
+                netmask 255.255.255.0
+                broadcast 192.168.0.255
+                up /usr/local/etc/arrakis.fw  # Path to the script. In this case, the script is called arrakis.fw, and is located in the /usr/local/etc directory.
+#endregion
+
+#region Monitoring and Logging
+
+logcheck
+    # A tool for monitoring system logs and sending alerts for unusual activity.
+
+    # Install logcheck
+        apt-get install logcheck
+
+    # Configure logcheck
+        vim /etc/logcheck/logcheck.conf  # Main configuration file for logcheck.
+        vim /etc/logcheck/logcheck.logfiles  # Configuration file for log file monitoring.
+
+    # Run logcheck manually
+        logcheck -o  # Run logcheck in offline mode.
+        logcheck -s  # Run logcheck in silent mode.
+
+top
+    # Displays real-time system resource usage.
+
+    # Show system resource usage
+        top
+        # Press 'q' to exit top.
+
+#Guil tools for monitoring system resources.
+xfce4-taskmanager # XFCE Task Manager
+gnome-system-monitor # GNOME System Monitor
+ksysguard # KDE System Monitor
+mate-system-monitor # MATE System Monitor
+
+#Detecting Changes to System Files
+    # These tools can detect changes to system files and directories.
+
+dpkg --verify
+    # Verifies the integrity of installed packages.
+
+aide
+    # Advanced Intrusion Detection Environment.
+
+    # Initialize aide database
+        aideinit
+
+    # Check for changes
+        aide --check
+
+tripwire
+    # File integrity checker.
+
+    # Initialize tripwire database
+        tripwire --init
+
+    # Check for changes
+        tripwire --check
+
+samhain
+    # A tool for monitoring system changes and detecting intrusions.
+
+    # Initialize samhain database
+        samhain --update
+
+    # Check for changes
+        samhain --check
+
+    # Check for changes in system files and directories.
+        samhain checksecurity
+        
+    # Check for rootkits and other malicious software.
+        samhain chkrootkit
+    
+    # Check for rootkits and other malicious software.
+        samhain rkhunter
+
+# Monitor & Logging File Paths
+    
+    /etc/rsyslog.conf  # Configuration file for rsyslog daemon.
+    /var/log/syslog            # General system log file.
+    /var/log/auth.log          # Authentication and authorization log.
+    /var/log/messages          # General message log (used in some distributions).
+    /var/log/secure            # Security-related log (used in some distributions).
+    /var/log/boot.log          # Boot process log.
+    /var/log/dpkg.log          # Log of package installations and removals (Debian-based systems).
+    /var/log/apt/history.log   # Log of apt package manager history.
+#endregion
 
 #endregion
 
@@ -1174,80 +1392,95 @@ grep -E
 
 #endregion
 
-#region Useful Paths
-## Paths to common configuration files and directories.
+#region Useful File Paths
 
-# SSH
-    /etc/ssh/sshd_config       # Configuration file for the SSH daemon.
-    /etc/ssh/ssh_config        # Configuration file for the SSH client.
+## SSH
+/etc/ssh/sshd_config       # Configuration file for the SSH daemon.
+/etc/ssh/ssh_config        # Configuration file for the SSH client.
 
-# Startup Scripts
-	/etc/rc.local              # Script executed at the end of each multi-user runlevel.
-    /etc/init.d/               # Directory containing init scripts for services.
-    /etc/systemd/system/       # Directory for systemd service unit files.
+## Startup Scripts
+/etc/rc.local              # Script executed at the end of each multi-user runlevel.
+/etc/init.d/               # Directory containing init scripts for services.
+/etc/systemd/system/       # Directory for systemd service unit files.
 
-# Logon banner
-	/etc/motd                  # Message of the Day displayed after login.
+## Logon Banner
+/etc/motd                  # Message of the Day displayed after login.
 
-# System Cron Jobs
-    /etc/cron.hourly           # Directory for hourly cron jobs.
-    /etc/cron.daily            # Directory for daily cron jobs.
-    /etc/cron.weekly           # Directory for weekly cron jobs.
-    /etc/cron.monthly          # Directory for monthly cron jobs.
+## System Cron Jobs
+/etc/cron.hourly           # Directory for hourly cron jobs.
+/etc/cron.daily            # Directory for daily cron jobs.
+/etc/cron.weekly           # Directory for weekly cron jobs.
+/etc/cron.monthly          # Directory for monthly cron jobs.
 
-# System Logs
-    /var/log/syslog            # General system log file.
-    /var/log/auth.log          # Authentication and authorization log.
-    /var/log/messages          # General message log (used in some distributions).
-    /var/log/secure            # Security-related log (used in some distributions).
-    /var/log/boot.log          # Boot process log.
-    /var/log/dpkg.log          # Log of package installations and removals (Debian-based systems).
-    /var/log/apt/history.log   # Log of apt package manager history.
+## System Logs
+/var/log/syslog            # General system log file.
+/var/log/auth.log          # Authentication and authorization log.
+/var/log/messages          # General message log (used in some distributions).
+/var/log/secure            # Security-related log (used in some distributions).
+/var/log/boot.log          # Boot process log.
+/var/log/dpkg.log          # Log of package installations and removals (Debian-based systems).
+/var/log/apt/history.log   # Log of apt package manager history.
 
-# System Configuration
-    /etc/fstab                 # File system mount table.
-    /etc/hosts                 # Static table for hostname-to-IP address mapping.
-    /etc/resolv.conf           # DNS resolver configuration.
-    /etc/network/interfaces    # Network interface configuration (Debian-based systems).
-    /etc/sysctl.conf           # Kernel parameters configuration.
-    /etc/hostname              # System hostname configuration.
+## System Configuration
+/etc/fstab                 # File system mount table.
+/etc/hosts                 # Static table for hostname-to-IP address mapping.
+/etc/resolv.conf           # DNS resolver configuration.
+/etc/network/interfaces    # Network interface configuration (Debian-based systems).
+/etc/sysctl.conf           # Kernel parameters configuration.
+/etc/hostname              # System hostname configuration.
 
-# System Users and Groups
-    /etc/passwd                # List of system users and their information.
-    /etc/shadow                # Encrypted passwords of system users.
-    /etc/group                 # List of system groups.
-    /etc/gshadow               # Encrypted passwords of system groups.
-    /etc/sudoers               # Configuration file for sudo privileges.
+## System Users and Groups
+/etc/passwd                # List of system users and their information.
+/etc/shadow                # Encrypted passwords of system users.
+/etc/group                 # List of system groups.
+/etc/gshadow               # Encrypted passwords of system groups.
+/etc/sudoers               # Configuration file for sudo privileges.
 
-# System Services
-    /etc/systemd/system/       # Directory for custom systemd service unit files.
-    /etc/init.d/               # Directory containing init scripts for services.
-    /etc/rc.local              # Script executed at the end of each multi-user runlevel.
+## System Services
+/lib/systemd/system        # Systemd service unit files.
+/run/systemd/system        # Runtime systemd service unit files.
 
-# System Backups
-    /var/backups/              # Directory for system backup files.
-    /etc/backup.conf           # Configuration file for backup settings.
-    /etc/cron.d/backup         # Cron job configuration for backups.
+## System Backups
+/var/backups/              # Directory for system backup files.
+/etc/backup.conf           # Configuration file for backup settings.
+/etc/cron.d/backup         # Cron job configuration for backups.
 
-# System Packages
-    /var/lib/dpkg/info/        # Metadata for installed packages (Debian-based systems).
-    /var/cache/apt/archives/   # Cache of downloaded package files (Debian-based systems).
+## System Packages
+/var/lib/dpkg/info/        # Metadata for installed packages (Debian-based systems).
+/var/cache/apt/archives/   # Cache of downloaded package files (Debian-based systems).
+/etc/apt/sources.list      # Package sources list.
+/etc/apt/trusted.gpg       # Trusted GPG keys for package verification.
 
-# System Environment Variables
-    /etc/environment           # Global environment variables.
-    /etc/profile               # System-wide shell initialization script.
-    /etc/bash.bashrc           # System-wide Bash shell configuration.
-    /etc/zsh/zshenv            # System-wide Zsh environment configuration.
-    /etc/zsh/zshrc             # System-wide Zsh shell configuration.
+## System Environment Variables
+/etc/environment           # Global environment variables.
+/etc/profile               # System-wide shell initialization script.
+/etc/bash.bashrc           # System-wide Bash shell configuration.
+/etc/zsh/zshenv            # System-wide Zsh environment configuration.
+/etc/zsh/zshrc             # System-wide Zsh shell configuration.
 
-# System Shell Configuration
-    /etc/bash.bashrc           # System-wide Bash shell configuration.
-    /etc/zsh/zshrc             # System-wide Zsh shell configuration.
-    /etc/profile.d/custom.sh   # Custom shell initialization script.
-    /etc/profile.d/custom_aliases.sh  # Custom aliases for the shell.
-    /etc/profile.d/custom_env.sh      # Custom environment variables.
-    /etc/profile.d/custom_functions.sh # Custom shell functions.
-    /etc/profile.d/custom_prompt.sh   # Custom shell prompt configuration.
+## System Shell Configuration
+/etc/profile.d/custom.sh              # Custom shell initialization script.
+/etc/profile.d/custom_aliases.sh      # Custom aliases for the shell.
+/etc/profile.d/custom_env.sh          # Custom environment variables.
+/etc/profile.d/custom_functions.sh    # Custom shell functions.
+/etc/profile.d/custom_prompt.sh       # Custom shell prompt configuration.
+
+## Networking
+/etc/network/interfaces    # Network interface configuration (Debian-based systems).
+
+## PostgreSQL
+/var/lib/postgresql/12/main/pg_hba.conf  # PostgreSQL client authentication configuration file.
+/var/lib/postgresql/12/main/postgresql.conf  # PostgreSQL main configuration file.
+/var/lib/postgresql/12/main/pg_ident.conf  # PostgreSQL user name mapping file.
+
+## Apache
+/etc/apache2/apache2.conf  # Main Apache configuration file.
+/etc/apache2/sites-available/  # Directory for available virtual host configurations.
+/etc/apache2/sites-enabled/  # Directory for enabled virtual host configurations.
+/var/www/html/  # Default document root directory for Apache.
+/var/log/apache2/access.log  # Access log file for Apache.
+/var/log/apache2/error.log  # Error log file for Apache.
+
 #endregion
 
 #region Miscellaneous
@@ -1324,119 +1557,3 @@ uptime
 
 #endregion
 
-#region Securing, Monitoring and Logging
-
-#region Securing the System
-#"Security is a process, not a product." - Bruce Schneier
-
-# General security practices.
-    # Keep the system updated with security patches.
-    # Use strong passwords and change them regularly.
-    # Limit user privileges and use the principle of least privilege.
-    # Regularly back up important data and configurations.
-    # Monitor system logs for unusual activity.
-    # Use firewalls to restrict access to services.
-    # Encrypt sensitive data and communications.
-    # Disable unused services and ports.
-    # set up a nuke feature to wipe the system.
-    # Specific tip for pentesting laptop: Forbid all outbound traffic except the traffic over the VPN tunnel so you know immediately if the VPN tunnel is down.
-
-# Securing Network Services
-    # Use SSH instead of Telnet for remote access.
-    # Use HTTPS instead of HTTP for web services.
-    # Use secure protocols (e.g., SFTP, FTPS) for file transfers.
-    # Disable root login over SSH and use key-based authentication.
-    # Use strong encryption algorithms for VPNs and secure communications.
-    # Reset any default passwords.
-    # Check kali.org/docs/ and tools.kali.org for services that need special care to secure.
-
-# Firewall and Packet Filtering
-    # netfilter (iptables) is the default firewall for Linux.
-    # Use iptables or fwbuilder to configure firewall rules.
-    # Allow only necessary ports and services.
-    # Block all incoming traffic by default and allow specific services.
-    # Use logging to monitor dropped packets and suspicious activity.
-    # Use fail2ban to protect against brute-force attacks on services.
-
-# Netfilter Behavior
-    # Netfilter is a framework provided by the Linux kernel for packet filtering and network address translation (NAT).
-    # It allows you to define rules for how packets should be handled based on various criteria, such as source/destination IP addresses, ports, and protocols.
-    # Netfilter operates at the kernel level, providing high performance and flexibility for network traffic management.
-    # Netfilter uses four tables:
-        # filter: Default table for packet filtering - Chains: INPUT, OUTPUT, FORWARD.
-        # nat: Used for network address translation - Chains: PREROUTING, POSTROUTING, OUTPUT.
-        # mangle: Used for specialized packet alteration - Chains: PREROUTING, POSTROUTING, INPUT, OUTPUT, FORWARD.
-        # raw: Used for configuring exemptions from connection tracking - Chains: PREROUTING, OUTPUT.
-    
-
-# Commands to manage netfilter
-
-iptables
-    # Linux firewall utility for configuring packet filtering rules.
-
-    # Syntax for iptables commands
-        iptables -L -n -v # List current iptables rules
-        iptables -N chain # Create a new chain
-        iptables -X chain # Delete a chain
-        iptables -A chain rule # Add a rule at the end of a chain        
-        iptables -I chain rule_num rule # Insert a rule at the beginning of a chain
-        iptables -D chain rule_num (OR -D chain rule) # Delete a specific rule from a chain
-        iptables -F chain # Flush all rules in a chain
-        iptables -P chain policy # Set the default policy for a chain
-        iptables -n -L INPUT --line-numbers # List all rules in the INPUT chain with line numbers
-
-    # Silently block incoming traffic from the IP address 10.0.1.5 and the 31.13.74.0/24 class C subnet
-        iptables -A INPUT -s 10.0.1.5 -j DROP # Block a specific IP address
-        iptables -A INPUT -s 31.13.74.0/24 -j DROP # Block a specific subnet
-        iptables -n -L INPUT # List all rules in the INPUT chain
-
-    # allow users to connect to SSH, HTTP, and IMAP services
-        iptables -A INPUT -p tcp --dport 22 -j ACCEPT # Allow SSH connections
-        iptables -A INPUT -p tcp --dport 80 -j ACCEPT # Allow HTTP connections
-        iptables -A INPUT -p tcp --dport 143 -j ACCEPT # Allow IMAP connections
-
-    # Block all incoming traffic by default
-        iptables -P INPUT DROP
-
-    # Allow outgoing traffic by default
-        iptables -P OUTPUT ACCEPT
-
-    # Save iptables rules to a file
-        iptables-save > /etc/iptables/rules.v4
-
-ip6tables
-    # IPv6 version of iptables for configuring packet filtering rules.
-    # Similar syntax to iptables.
-
-fwbuilder
-    # A graphical firewall configuration tool for Linux.
-
-    # Install fwbuilder
-        apt-get install fwbuilder
-
-# Implementing firewall rules each time the system boots
-    # Create firewall configuration script.
-        #This can be done using fwbuilder or manually writing a script.
-            # Example script to set up iptables rules:
-                #!/bin/bash
-                iptables -F  # Flush existing rules
-                iptables -P INPUT DROP  # Set default policy to DROP for INPUT chain
-                iptables -P OUTPUT ACCEPT  # Set default policy to ACCEPT for OUTPUT chain
-                iptables -A INPUT -p tcp --dport 22 -j ACCEPT  # Allow SSH connections
-                    # Documentation on building iptables rules can be found at https://www.netfilter.org/documentation/index.html.
-    # Point to the script in the /etc/network/interfaces file using the up directive.
-        # Example:
-            auto eth0
-            iface eth0 inet static
-                address 192.168.0.1
-                network 192.168.0.0
-                netmask 255.255.255.0
-                broadcast 192.168.0.255
-                up /usr/local/etc/arrakis.fw  # Path to the script. In this case, the script is called arrakis.fw, and is located in the /usr/local/etc directory.
-#endregion
-
-#region Monitoring and Logging
-
-#endregion
-
-#endregion
