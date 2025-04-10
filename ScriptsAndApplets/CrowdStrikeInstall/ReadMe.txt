@@ -1,3 +1,15 @@
+#Gather the newest version of the installers from the portal, put them in the directory with the CS-Install.sh script, and name them as below.
+    #Always get the newest version of the installers. The portal does not support older versions, and your devices will not check in if installed with an old installer.
+CS-Falcon-Deb.deb
+CS-Falcon-RHEL-6.rpm
+CS-Falcon-RHEL-7.rpm
+CS-Falcon-RHEL-8.rpm
+CS-Falcon-RHEL-9.rpm
+CS-Falcon-RHEL-11.rpm
+CS-Falcon-RHEL-12.rpm
+CS-Falcon-RHEL-15.rpm
+CS-Falcon-Ubuntu.deb
+
 #Remember to put the CID in CS-Install.sh at the top where it says
 
 #Make sure you are running the cli with root privs

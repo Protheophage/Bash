@@ -478,12 +478,6 @@ route
 apt-get
     # Package manager for Debian-based systems.
 
-    # Update the package list
-        apt-get update
-
-    # Upgrade all installed packages
-        apt-get upgrade
-
     # Install a package
         apt-get install <package-name>
 
@@ -492,13 +486,32 @@ apt-get
 
 apt
     # Advanced package tool for Debian-based systems.
-    #Has a similar syntax to apt-get.
+    #Developed to resolve some issues with apt-get.
 
     # Install a package
         apt install <package-name>
 
     # Remove a package
         apt remove <package-name>
+
+    # Purge a package (remove configuration files and dependencies)
+        apt purge <package-name>
+
+    # Update package lists
+        apt update
+    
+    # Upgrade installed packages
+        apt upgrade
+
+    # Fully upgrade the distribution (including dependencies)
+        apt full-upgrade
+
+    # Clean up the archives
+        apt clean # Remove downloaded package files
+        apt autoclean # Remove old package files
+
+    # Re-install a package
+        apt install --reinstall <package-name>
 
 dpkg
     # Package manager for Debian-based systems.
@@ -509,24 +522,29 @@ dpkg
     # Remove a package
         dpkg -r <package_name>
 
+    # Purge a package (remove configuration files)
+        dpkg --purge <package_name> # Does not remove dependencies
+
+    # List installed packages
+        dpkg -l
+
 #Format of the Sources.list file
     # The sources.list file contains a list of repositories (package sources) from which packages can be downloaded.
 
     # The format of each line in sources.list is as follows:
         deb [options] uri distribution [components]
         deb-src [options] uri distribution [components]
-            # The `deb` line specifies a binary package repository.
-            # The `deb-src` line specifies a source package repository.
-            # `uri` is the URL of the repository. This portion can start with http://, ftp://, or file:// or cdrom:**.
+            # The 'deb' line specifies a binary package repository.
+            # The 'deb-src' line specifies a source package repository.
+            # 'uri' is the URL of the repository. This portion can start with http://, ftp://, or file:// or cdrom:**.
                 # **cdrom: needs to be added using apt-cdrom command.
-            # `distribution` is the name of the distribution (e.g., stable, testing).
-            # `components` are the sections of the repository (e.g., main, contrib, non-free).
+            # 'distribution' is the name of the distribution (e.g., stable, testing).
+            # 'components' are the sections of the repository (e.g., main, contrib, non-free).
 
     # Example entry in sources.list
         deb http://deb.debian.org/debian/ stable main contrib non-free
 
-#Repos
-
+#Repositories for Debian, Kali, and Ubuntu
     #Adds the debian repo to sources so you can download packages with apt
     	echo "deb http://deb.debian.org/debian/ stable main contrib non-free" >> /etc/apt/sources.list
     #Adds the debian security repo to sources so you can download packages with apt
@@ -1515,44 +1533,44 @@ uptime
 #endregion
 
 #region Crack root password
-#Reboot your Linux system and wait for the GRUB menu to appear during the boot process.
-#Press ‘e’ to edit the boot parameters.
-#Find the line starting with ‘linux’ and change ‘ro’ (read-only) to ‘rw’ (read-write). Add ‘init=/bin/bash’ at the end of this line.
-#Press F10 to boot with these parameters.
-#Once the system boots, you’ll be at the bash prompt. Remount the root filesystem with write permissions using: mount -o remount,rw /
-#Reset the root password by typing: passwd root and then enter the new password twice when prompted.
-#Reboot the system by typing: exec /sbin/init
+    #Reboot your Linux system and wait for the GRUB menu to appear during the boot process.
+    #Press ‘e’ to edit the boot parameters.
+    #Find the line starting with ‘linux’ and change ‘ro’ (read-only) to ‘rw’ (read-write). Add ‘init=/bin/bash’ at the end of this line.
+    #Press F10 to boot with these parameters.
+    #Once the system boots, you’ll be at the bash prompt. Remount the root filesystem with write permissions using: mount -o remount,rw /
+    #Reset the root password by typing: passwd root and then enter the new password twice when prompted.
+    #Reboot the system by typing: exec /sbin/init
 
-##Process specific to RHEL
-	#Interrupt the Boot Process:
-	#Reboot your system.
-	#When the GRUB menu appears, press any key to interrupt the boot process.
-	#Edit Boot Parameters:
-	#Use the arrow keys to highlight the kernel you want to boot.
-	#Press e to edit the selected boot entry.
-	#Find the line that starts with linux and append rd.break at the end of this line.
-	#Press Ctrl + X to boot with these parameters.
-	#Remount the File System:
-	#Once the system boots into the emergency mode, remount the root file system with read and write permissions:
-	mount -o remount,rw /sysroot
+    ##Process specific to RHEL
+        #Interrupt the Boot Process:
+        #Reboot your system.
+        #When the GRUB menu appears, press any key to interrupt the boot process.
+        #Edit Boot Parameters:
+        #Use the arrow keys to highlight the kernel you want to boot.
+        #Press e to edit the selected boot entry.
+        #Find the line that starts with linux and append rd.break at the end of this line.
+        #Press Ctrl + X to boot with these parameters.
+        #Remount the File System:
+        #Once the system boots into the emergency mode, remount the root file system with read and write permissions:
+        mount -o remount,rw /sysroot
 
-	#Change the root directory:
-	chroot /sysroot
+        #Change the root directory:
+        chroot /sysroot
 
-	#Reset the Root Password:
-	#Use the passwd command to reset the root password:
-	passwd
+        #Reset the Root Password:
+        #Use the passwd command to reset the root password:
+        passwd
 
-	#Enter and confirm the new password.
-	#Relabel SELinux:
-	#Create a file to ensure SELinux relabels the file system on reboot:
-	touch /.autorelabel
+        #Enter and confirm the new password.
+        #Relabel SELinux:
+        #Create a file to ensure SELinux relabels the file system on reboot:
+        touch /.autorelabel
 
-	#Exit the chroot environment:
-	exit
+        #Exit the chroot environment:
+        exit
 
-	#Reboot the system:
-	reboot
+        #Reboot the system:
+        reboot
 #endregion
 
 #endregion

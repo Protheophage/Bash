@@ -1,3 +1,10 @@
+#Gather the newest version of the installers from the portal, put them in the directory with the S1-Install.sh script, and name them as below.
+    #Always get the newest version of the installers. The portal does not support older versions, and your devices will not check in if installed with an old installer.
+S1aarch.deb
+S1aarch.rpm
+S1x86.deb
+S1x86.rpm
+
 #Remember to put the site token in S1-Install.sh at the top where it says
 
 #Make sure you are running the cli with root privs
