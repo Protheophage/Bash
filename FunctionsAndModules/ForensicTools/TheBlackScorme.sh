@@ -20,7 +20,7 @@ TheBlackScorme() {
     echo "The boot device is $boot"
     echo "The non-boot devices are ${filtered_devices[@]}"
 
-    while [[ "$1" != "" ]]; do
+    while [[ "$#" -gt 0 ]]; do
         case $1 in
             --dc3dd | -3 ) use_dc3dd=true ;;
             --log | -l ) shift; log_dir=$1 ;;
