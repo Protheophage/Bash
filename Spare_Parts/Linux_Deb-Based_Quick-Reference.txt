@@ -7,28 +7,34 @@
 #    3.1 Service Management
 #    3.2 User and Group Management
 #    3.3 Process Management
+#    3.4 Cron Jobs
 # 4. Networking
-# 5. Compression and Archiving
-# 6. Package Management
+# 5. Package Management
+#    5.1 General Package Management
+#    5.2 Advanced Package Management
+# 6. Customizing Kali Linux
+#    6.1 Recompiling the Kernel
+#    6.2 Building a Custom ISO
 # 7. Remote Commands
-# 8. Cron Jobs
-# 9. PostgreSQL
-# 10. Apache
-# 11. Securing, Monitoring, and Logging
-#    11.1 Securing the System
-#    11.2 Monitoring and Logging
-# 12. Scripting Essentials
-#    12.1 Parameter Definitions and Attributes
-#    12.2 Shell Variables and I/O
-#    12.3 Control Structures and Functions
-#    12.4 Error Handling and Best Practices
-# 13. Regular Expressions
-# 14. Useful File Paths
-# 15. Miscellaneous
-#    15.1 Miscellaneous Commands
-#    15.2 Crack Root Password
+# 8. PostgreSQL
+# 9. Apache
+# 10. Securing, Monitoring, and Logging
+#    10.1 Securing the System
+#    10.2 Monitoring and Logging
+# 11. Scripting Essentials
+#    11.1 Parameter Definitions and Attributes
+#    11.2 Shell Variables and I/O
+#    11.3 Control Structures and Functions
+#    11.4 Error Handling and Best Practices
+# 12. Regular Expressions
+# 13. Useful File Paths & URLs
+#    13.1 File Paths
+#    13.2 URLs
+# 14. Miscellaneous
+#    14.1 Miscellaneous Commands
+#    14.2 Crack Root Password
 ###########################################################################
-#region Help and Discovery
+#region 1. Help and Discovery
 # Commands to explore and discover shell commands and their usage.
 
 man
@@ -80,7 +86,7 @@ whence
         whence ls
 #endregion
 
-#region File Management
+#region 2. File Management
 # File System Navigation & File Manipulation + Permissions and Ownership
 
 #region File System Navigation & File Manipulation
@@ -238,8 +244,8 @@ ls -l
 
 #endregion
 
-#region System Administration
-# Service Management + User and Group Management + Process Management
+#region 3. System Administration
+# Service Management + User and Group Management + Process Management + Cron Jobs
 
 #region Service Management
 
@@ -410,9 +416,59 @@ bg
     /proc/[pid]/cmdline # Command line arguments for process [pid]
 #endregion
 
+#region Cron Jobs
+# Commands to manage cron jobs
+
+crontab
+    # Lists all cron jobs for the current user.
+
+    # List all cron jobs
+        crontab -l
+
+    # Edit the current user's cron jobs
+        crontab -e
+
+    # Remove all cron jobs for the current user
+        crontab -r
+
+# Script to get jobs for all users
+    # This script iterates through all system users and lists their cron jobs.
+        #!/bin/bash
+        for user in $(cut -f1 -d: /etc/passwd); do
+            echo "Crontab for $user:"
+            sudo crontab -u $user -l
+            echo ""
+        done
+
+# Script to get system-wide cron jobs
+    # This script checks predefined cron directories for scheduled jobs.
+        #!/bin/bash
+
+        # Define the system-wide cron directories
+        cron_dirs=(/etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly)
+
+        # Loop through each directory and list the cron jobs
+        for dir in "${cron_dirs[@]}"; do
+            echo "Checking $dir for cron jobs:"
+            if [[ -d "$dir" ]]; then
+                ls -la "$dir"
+            else
+                echo "Directory $dir does not exist."
+            fi
+            echo ""
+        done
+
+# Paths to system cron jobs
+    /etc/cron.hourly
+    /etc/cron.daily
+    /etc/cron.weekly
+    /etc/cron.monthly
+
 #endregion
 
-#region Networking
+#endregion
+
+#region 4. Networking
 # Commands for network-related tasks.
 
 ping
@@ -472,7 +528,10 @@ route
         route del -net <network> netmask <netmask> gw <gateway> dev <interface-name>
 #endregion
 
-#region Package Management
+#region 5. Package Management
+# General and Advanced Package Management
+
+#region General Package Management
 # Commands to manage software packages.
 
 apt-get
@@ -588,14 +647,210 @@ dpkg
     #Adds the ubuntu ppa unstable repo to sources so you can download packages with apt
     	echo "deb http://ppa.launchpad.net/ubuntu/ppa-unstable/ubuntu focal-unstable main restricted universe multiverse" >> /etc/apt/sources.list
 
+#endregion
+
+#region Advanced Package Management
+
+# Commands for advanced package management.
+
+apt
+    # Package Manager
+
+    # Downloads the source code of a package.
+        apt source <package-name>
+
+    # Get the build dependencies for a package unpacked in your current directory
+        apt build-dep ./
+            # Each source package declares its build dependencies in the Build-Depends field of the debian/control file.
+
+git
+    # Version control system for tracking changes in source code.
+
+    # Clone a repository
+        git clone <repository-url>
+
+    # Check the status of a repository
+        git status
+
+    # Pull the latest changes from a remote repository
+        git pull
+
+    # Commit changes to the local repository
+        git commit -m "Commit message"
+
+    # Push changes to a remote repository
+        git push
+
+git-buildpackage
+    # A tool to build Debian packages from a Git repository.
+
+    # Build a source package
+        gbp buildpackage --git-builder=debuild
+
+    # Build a binary package
+        gbp buildpackage --git-builder=debuild -b
+
+    # Create a pristine tarball from upstream sources
+        gbp import-orig --pristine-tar <upstream-tarball>
+
+    # Tag a release
+        gbp tag
+
+dpkg-deb
+    # A tool to create, extract, and manage Debian package archives.
+
+    # Unpack a package
+        dpkg-deb -x <package.deb> <destination-directory>
+
+    # Pack a package
+        dpkg-deb -b <source-directory> <output.deb>
+
+dpkg-source
+    # A tool to manage Debian source packages.
+
+    # Register your changes in a new patch
+        dpkg-source --commit
+
+    # Extract a source package
+        dpkg-source -x <package.dsc>
+
+    # Build a source package
+        dpkg-source -b <source-directory>
+
+dpkg-buildpackage
+    # A tool to build Debian packages from source.
+
+    # Build a binary package from source in the current directory
+        dpkg-buildpackage -us -uc -b
+
+dch
+    # Debian ChangeLog Helper - A tool to manage Debian changelogs.
+
+    # Change the version name by adding a suffix of your name or nickname
+        dch --local <YourNameOrTag>
+
+    # Add a new changelog entry with a custom message
+        dch -v 1.0-1 "Initial release of the package"
+
+    # Automatically increment the version and add a default changelog entry
+        dch -i
+
+    # Edit the changelog manually
+        dch -e
+
+debuild
+    # A tool to build Debian packages.
+
+    # Build a binary package from source in the current directory
+        debuild -us -uc -b
+
+# Rough steps to re-package
+    # 1) Get the package or the source code
+        # 1.1) apt, git, dpkg-source
+    # 2) Unpack the package
+        # 2.1) dpkg-deb
+    # 3) Version your new package
+        # 3.1) dch
+    # 4) Get package dependencies
+        # 4.1) apt, git 
+    # 5) Add or replace desired parts of the package
+    # 6) Register changes
+        # 6.1) dpkg-source
+    # 7) re-package
+        # 7.1) dpkg-buildpackage, git-buildpackage, dpkg-deb, debuild
+
+#endregion
+
 # Package File Paths
     /var/cache/apt/archives # Cached package files
     /var/lib/dpkg/status # Package status file
     /etc/apt/sources.list # Package sources list
-    /etc/apt/trusted.gpg # Trusted GPG keys for package verification		
+    /etc/apt/trusted.gpg # Trusted GPG keys for package verification
+# Package URLs
+    https://www.debian.org/doc/manuals/maint-guide/ # Debian New Maintainers Guide
+    https://honk.sigxcpu.org/piki/projects/git-buildpackage/ # Git-BuildPackage
+    https://gitlab.com/kalilinux/packages # Kali package source code repo
+    https://sources.debian.org/ # Debian source code repo
+    https://git-scm.com/ # Git download and documentation
 #endregion
 
-#region Remote Commands
+#region 6. Customizing Kali Linux
+# Recompiling The Kernel + Building A Custom ISO
+
+#region Recompiling The Kernel
+
+# Pre-requisites
+
+# Get the pre-requisites
+    apt install build-essential libncurses5-dev fakeroot
+
+build-essential 
+    # A meta-package that ensures you have the tools required to build a Debian package.
+
+libncurses5-dev 
+    # Development libraries for ncurses, required for kernel configuration.
+
+fakeroot 
+    # Allows non-root users to create files with root ownership during package creation.
+
+# Process
+# 1) Get Sources
+
+# List the latest kernel version packaged by Kali
+    apt-cache search ^linux-source
+
+# Get the package source (in this case version 4.9)
+    apt install linux-source-4.9
+
+# 2) Extraction
+
+# Make an appropriate directory to extract in
+    mkdir ~/kernel; cd ~/kernel
+
+# Extract in the new directory
+    tar -xaf /usr/src/linux-source-4.9.tar.xz
+
+# 3) Config File
+
+# Check the current version
+    uname -r
+
+# Copy the existing config file (in this case v4.9) to the build directory
+    cp /boot/config-4.9.0-kali1-amd64 ~/kernel/linux-source-4.9/.config
+
+# 4) Make Changes
+
+make
+    # A build automation tool that compiles source code into binaries.
+
+    # Open a text-based configuration menu
+        make menuconfig
+
+    # Open a graphical configuration menu (requires additional libraries)
+        make xconfig
+
+    # Open a GTK-based configuration menu
+        make gconfig
+
+# 5) Compile & Build
+
+
+
+
+#endregion
+
+#region Building A Custom ISO
+
+#endregion
+
+# Customizing Kali File Paths
+
+# Customizing Kali URLs
+    https://kernel-handbook.alioth.debian.org # Debian Kernel Handbook
+
+#endregion
+
+#region 7. Remote Commands
 # Executing commands on remote systems using SSH.
 
 ssh
@@ -623,43 +878,7 @@ zmodload zsh/net/tcp
         ztcp google.com 80
 #endregion
 
-#region Cron Jobs
-#List all for current user
-	crontab -l
-
-#Script to get jobs for all users
-	#!/bin/bash
-	for user in $(cut -f1 -d: /etc/passwd); do
-		echo "Crontab for $user:"
-		sudo crontab -u $user -l
-		echo ""
-	done
-
-#Paths to system cron jobs
-	/etc/cron.hourly
-	/etc/cron.daily
-	/etc/cron.weekly
-	/etc/cron.monthly
-
-# Script to get system wide cron jobs
-	#!/bin/bash
-
-	# Define the system-wide cron directories
-	cron_dirs=(/etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly)
-
-	# Loop through each directory and list the cron jobs
-	for dir in "${cron_dirs[@]}"; do
-		echo "Checking $dir for cron jobs:"
-		if [[ -d "$dir" ]]; then
-			ls -la "$dir"
-		else
-			echo "Directory $dir does not exist."
-		fi
-		echo ""
-	done
-#endregion
-
-#region PostgreSQL
+#region 8. PostgreSQL
 # PostgreSQL commands for database management.
 
 psql
@@ -714,7 +933,7 @@ postresql-common
     /var/lib/postgresql/12/main/pg_ident.conf  # PostgreSQL user name mapping file.
 #endregion
 
-#region Apache
+#region 9. Apache
 # Apache commands for web server management.
 
 apache2ctl
@@ -809,7 +1028,7 @@ htpasswd
 
 #endregion
 
-#region Securing, Monitoring and Logging
+#region 10. Securing, Monitoring and Logging
 
 #region Securing the System
 #"Security is a process, not a product." - Bruce Schneier
@@ -1005,7 +1224,7 @@ samhain
 
 #endregion
 
-#region Scripting Essentials
+#region 11. Scripting Essentials
 # Parameter Definitions and Attributes + Shell Variables and I/O + Control Structures and Functions + Error Handling and Best Practices.
 
 #region Parameter Definitions and Attributes
@@ -1314,7 +1533,7 @@ set -o ERR_EXIT
 
 #endregion
 
-#region Regular Expressions
+#region 12. Regular Expressions
 # regex full explanation can be found at https://www.regular-expressions.info/.
 
 # Commands and tools for working with regular expressions.
@@ -1410,7 +1629,9 @@ grep -E
 
 #endregion
 
-#region Useful File Paths
+#region 13. Useful File Paths & URLs
+
+#region File Paths
 
 ## SSH
 /etc/ssh/sshd_config       # Configuration file for the SSH daemon.
@@ -1501,7 +1722,25 @@ grep -E
 
 #endregion
 
-#region Miscellaneous
+#region URLs
+
+## General
+https://www.debian.org/ # Debian
+https://www.kali.org/ # Kali
+https://ubuntu.com/ # Ubuntu
+https://www.offsec.com/ # Offensive Security
+
+## Package Management
+https://www.debian.org/doc/manuals/maint-guide/ # Debian New Maintainers Guide
+https://honk.sigxcpu.org/piki/projects/git-buildpackage/ # Git-BuildPackage
+https://gitlab.com/kalilinux/packages # Kali package source code repo
+https://sources.debian.org/ # Debian source code repo
+https://git-scm.com/ # Git download and documentation
+
+#endregion
+#endregion
+
+#region 14. Miscellaneous
 #region Miscellaneous commands.
 
 # Commands to retrieve system and hardware information.
